@@ -1,0 +1,80 @@
+services:
+  db:
+    build:
+      context: .
+      dockerfile: Dockerfile_postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      PGUSER: ${POSTGRES_USER}
+    ports:
+      - 5432:5432
+
+    healthcheck:
+      test: ["CMD", "pg_isready", "-h", "db", "-p", "5432", "-d", "habitz"]
+      interval: 30s
+      timeout: 60s
+      retries: 5
+      start_period: 80s
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis
+    expose:
+      - 6379
+    volumes:
+      - redis_data:/data
+
+  web:
+    build: .
+    command: sh -c "python manage.py collectstatic --noinput && gunicorn --bind 0.0.0.0:8000 --access-logfile - config.wsgi:application"
+    volumes:
+      - .:/app
+      - static_volume:/app/staticfiles
+    expose:
+      - 8000
+    depends_on:
+      - db
+      - redis
+    environment:
+      CELERY_BROKER_URL: "redis://redis:6379/0"
+      CELERY_BACKEND: "redis://redis:6379/0"
+      DATABASE_URL: "postgres://hhuser:123456@db:5432/habitz"
+
+  nginx:
+    image: nginx:1.28-alpine
+    ports:
+      - 80:80
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - static_volume:/var/www/static/:ro
+    depends_on:
+      - web
+  celery:
+    build: .
+    entrypoint: celery
+    command: -A config worker --loglevel=info
+
+    volumes:
+      - .:/usr/src/app
+    environment:
+      - DEBUG=False
+      - REDIS_HOST=redis
+      - PYTHONUNBUFFERED=0
+      - SECRET_KEY="django-insecure-g_4li039o4ja=7sb$odoun=8i5=e_xuz_k!)e^um%+fg2j94p)"
+      - CELERY_BROKER=redis://redis:6379/0
+      - CELERY_BACKEND=redis://redis:6379/0
+    depends_on:
+      - web
+      - redis
+
+    links:
+    - redis
+volumes:
+  postgres_data:
+  redis_data:
+  static_volume:
