@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+
+<div class="card col col-md-6 px-4 p-3 ms-4 mb-3">
+    <form method="post" class="form-floating" enctype="multipart/form-data">
+<!--    <form method="post" action="add" class="form-floating" enctype="multipart/form-data">-->
+        {% csrf_token %}
+        {{ form.as_p }}
+        <div class="d-flex container-fluid justify-content-evenly">
+            <button type="submit" class="btn btn-primary btn-lg mx-2 px-5 m-3 float-bottom">
+            {% if client_editing_mode %}
+                Изменить
+            {% else %}
+                Добавить
+            {% endif %}
+            </button>
+            <button type="button" class="btn btn-lg btn-outline-primary mx-2 px-5 m-3 float-bottom"
+                    onClick="javascript:history.go(-1);">Назад
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

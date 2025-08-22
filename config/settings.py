@@ -9,7 +9,7 @@ ADMIN_DEFAULT_PASSWORD = os.getenv('ADMIN_DEFAULT_PASSWORD')
 
 ALLOWED_HOSTS = ['*']
 
-
+AUTH_USER_MODEL = 'users.CustomUser'
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -76,7 +76,9 @@ INSTALLED_APPS = [
     "django.contrib.contenttypes",
     "django.contrib.sessions",
     "django.contrib.messages",
+    "django.contrib.sites",
     "django.contrib.staticfiles",
+    "groupadmin_users",
     'users',
     'notebook',
 ]
@@ -102,7 +104,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": ['templates', os.path.join('templates', 'users'), os.path.join('templates', 'notes')],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
