@@ -23,34 +23,13 @@
             crossorigin="anonymous"></script>
 
     {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'css/styles.css' %}"/>
     <link rel="icon" href="{% static 'favicon.ico' %}?v=2" type="image/x-icon">
-    <style>
-        .nav-item {
-            width: 100%;
-        }
-        .flex-cards {
-          display: flex;
-          flex-wrap: wrap;
-        }
-
-        .flex-cards .card {
-          flex: 1;
-        }
-
-        .custom-checkbox-class {
-          width: 3rem;
-            }
-
-        .nobullet {
-            list-style-type: none;
-            }
-    </style>
+    <script src="{% static 'js/misc_functions.js' %}"></script>
 
 </head>
 <body>
 {% include "top.html" %}
-
-
 {% block content %}{% endblock %}
 {% block navigation %}
 {% endblock %}

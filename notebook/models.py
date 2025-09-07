@@ -1,5 +1,8 @@
+import datetime
+
 from django.db import models
 from users.models import CustomUser
+
 
 class PageTemplatePart(models.Model):
     """
@@ -9,12 +12,14 @@ class PageTemplatePart(models.Model):
     value_type = models.CharField(max_length=200, verbose_name="тип содержимого")
     sec_number = models.IntegerField(verbose_name='Порядковый номер в шаблоне')
 
+
 class PageTemplate(models.Model):
     """
     модель шаблона страницы блокнота
     """
     name = models.CharField(max_length=200, verbose_name="имя шаблона страницы блокнота")
     parts = models.ManyToManyField(PageTemplatePart, verbose_name="Получатели")
+
 
 class Notebook(models.Model):
     """
@@ -25,7 +30,7 @@ class Notebook(models.Model):
     owner = models.ForeignKey(CustomUser, editable=False, on_delete=models.SET_NULL, related_name='notebooks',
                               verbose_name='Владелец', blank=True, null=True)
 
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата создания")
+    created_at = models.DateTimeField(verbose_name="Дата создания", auto_created=True)
 
     class Meta:
         verbose_name = "Блокнот"
@@ -35,9 +40,14 @@ class Notebook(models.Model):
     def __str__(self):
         return self.title
 
-class NotebookPage(models.Model):
+
+class NotebookRecord(models.Model):
     number = models.IntegerField(verbose_name='Номер страницы в блокноте')
-    notebook = models.ForeignKey(Notebook, editable=False, on_delete=models.CASCADE, related_name='pages',
-                              verbose_name='Блокнот', blank=True, null=True)
-    template = models.ForeignKey(Notebook, editable=False, on_delete=models.CASCADE, related_name='pages',
-                              verbose_name='Блокнот', blank=True, null=True)
+    notebook = models.ForeignKey(Notebook, editable=False, on_delete=models.CASCADE, related_name='records',
+                                 verbose_name='Блокнот', blank=True, null=True)
+    template = models.ForeignKey(Notebook, editable=False, on_delete=models.CASCADE, related_name='this_template_pages',
+                                 verbose_name='Блокнот', blank=True, null=True)
+    title = models.CharField(max_length=200, verbose_name="Заголовок записи", blank=True, default='')
+    created_at = models.DateTimeField(verbose_name="Дата создания")
+
+    text = models.TextField(blank=True)

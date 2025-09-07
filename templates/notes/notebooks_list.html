@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Блокноты{% endblock %}
+{% block content %}
+<div class="row d-flex">
+    <a href="{% url 'new_notebook' %}" class="btn btn-lg btn-outline-success mx-2 px-5 m-3 float-bottom">
+        Новый блокнот
+    </a>
+
+    {% if notebooks %}
+    <p>
+        Сортировать по...
+
+
+    <h4 class="d-flex justify-content-center">Блокноты:</h4>
+    {% for notebook in notebooks %}
+    <div class="d-flex justify-content-center">
+        <a href="{% url 'notebook_records' pk=notebook.id %}" type="button"
+           class="btn btn-lg btn-outline-primary "
+           style="width: 90%">{{notebook.title}}
+        </a>
+    </div>
+    {% endfor %}
+    {% endif %}
+    {% else %}
+    <h5>Пока блокнотов нет...</h5>
+    {% endif %}
+    <button type="button" class="btn btn-lg btn-outline-primary mx-2 px-5 m-3 float-bottom"
+            onClick="javascript:history.go(-1);">Назад
+    </button>
+
+
+    {% endblock %}
+
+    {% block navigation %}
+    {% if mailings %}
+    <nav class="list-pages">
+        <ul>
+            {% for p in paginator.page_range %}
+            {% if page_obj.number == p %}
+            <li class="page-num page-num-selected">Стр. {{ p }}</li>
+            {% else %}
+            <li class="page-num">
+                <a href="?page={{ p }}">Стр. {{ p }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+        </ul>
+    </nav>
+    {% endif %}
+    {% endblock %}

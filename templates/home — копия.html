@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% block title %}
+{% if title %}
+{{ title }}
+{% else %}DaysFlow
+{% endif %}
+{% endblock %}
+{% block content %}
+<div style="background-image: 'background.png'; height: 100%; width: 100%;"></div>
+<div class="pricing-header px-2 pt-md-5 pb-md-4 mx-auto py-5 text-center">
+    <h1 class="display-4">DaysFlow</h1>
+    <h3 class="display-6">personal notes web-app</h3>
+</div>
+
+<div class="container-fluid pb-2 main_content_container" style="height: 90%">
+
+    <div class="row d-flex">
+        {% if notebooks %}
+        <h4 class="d-flex justify-content-center">Блокноты:</h4>
+        {% for notebook in notebooks %}
+            <div class="d-flex justify-content-center">
+                <a href="{% url 'notebook_records' pk=notebook.id %}" type="button"
+                   class="btn btn-lg btn-outline-primary "
+                   style="width: 90%">{{notebook.title}}
+                </a>
+            </div>
+        {% endfor %}
+        {% endif %}
+
+        <div class="col-5 justify-content-center" style="background-color: #FFF">
+            <br>
+        </div>
+        <div class="col-5">
+            {% if messages_to_send %}
+            <h4 class="d-flex justify-content-center">Сообщения:</h4>
+            {% endif %}
+            <br>
+            {% for message in messages_to_send %}
+            <div class="d-flex justify-content-center">
+                <a href="{% url 'message_details' pk=message.id %}" type="button"
+                   class="btn btn-lg btn-outline-primary mx-auto px-5 float-bottom" style="width: 90%">{{message.topic}}
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="col-5">
+            {% if mailings %}
+            <h4 class="d-flex justify-content-center">Рассылки:</h4>
+            {% endif %}
+            <br>
+            {% for mailing in mailings %}
+            <div class="d-flex justify-content-center">
+                {% if mailing.status == "Создана" %}
+                <a href="{% url 'mailing_details' pk=mailing.id %}" type="button"
+                   class="btn btn-lg btn-primary mb-2 px-5 float-bottom" style="width: 90%">Рассылка
+                    {{mailing.id}}
+                </a>
+                {% elif mailing.status == "Запущена" %}
+                <a href="{% url 'mailing_details' pk=mailing.id %}" type="button"
+                   class="btn btn-lg btn-success mb-2 px-5 float-bottom" style="width: 40rem">Рассылка
+                    {{mailing.id}}
+                </a>
+                {% else %}
+                <a href="{% url 'mailing_details' pk=mailing.id %}" type="button"
+                   class="btn btn-lg btn-secondary mb-2 px-5 float-bottom" style="width: 40rem">Рассылка
+                    {{mailing.id}}
+                </a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block navigation %}
+<nav class="list-pages" style="height:15px">
+    <ul class="list-inline">
+        {% for p in paginator.page_range %}
+        {% if page_obj.number == p %}
+        <li class="page-num page-num-selected">{{ p }}</li>
+        {% else %}
+        <li class="page-num">
+            <a href="?page={{ p }}">{{ p }}</a>
+        </li>
+        {% endif %}
+
+        {% endfor %}
+    </ul>
+</nav>
+{% endblock %}

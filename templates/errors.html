@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+{% for kw in kwargs.keys%}{{kw}}{%endfor%}
+{% if error_message %}
+<h3>{{error_message}}</h3>
+{% else %}
+<h3>Не получилось, ошибка в данных.</h3>
+{% endif %}
+{% if errors %}{{ errors }}{% endif %}
+<button type="button" class="btn btn-lg btn-outline-primary mx-2 px-5 m-3 float-bottom"
+        onClick="javascript:history.go(-1);">Назад
+</button>
+<a href="{% url 'home' %}" class="btn btn-lg btn-outline-primary mx-2 px-5 m-3 float-bottom">На домашнюю</a>
+{% endblock %}

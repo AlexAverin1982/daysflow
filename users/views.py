@@ -35,29 +35,7 @@ from .models import CustomUser, UsersControl
 User = get_user_model()
 
 
-class HomeView(generic.TemplateView):
-    """
-    домашняя страница: главное меню для регистрации и входа и выхода, кнопки управления.
-    основное окно - три колонки: клиенты, сообщения и рассылки пользователя
-    """
-    template_name = "home.html"
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        if not isinstance(self.request.user, AnonymousUser):
-            context.update({
-                'notebooks': Notebook.objects.all().filter(owner=self.request.user),
-                # 'messages_to_send': Message.objects.all().filter(owner=self.request.user),
-                # 'mailings': Mailing.objects.all().filter(owner=self.request.user),
-                # 'total_mailings_count':
-                #     Mailing.objects.all().filter(owner=self.request.user).count(),
-                # 'active_mailings_count':
-                #     Mailing.objects.all().filter(owner=self.request.user).filter(status='Запущена').count(),
-                # 'clients_count':
-                #     Client.objects.all().filter(owner=self.request.user).count()
-            })
-        return context
 
 
 class UserLoginView(LoginView):

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}{{title}}{% endblock %}
+{% block content %}
+
+<a href="{% url 'new_record' pk=notebook_id %}" class="btn btn-lg btn-outline-success mx-2 px-5 m-3 float-bottom">
+    Добавить запись
+</a>
+
+{% if records %}
+<p>
+Сортировать по...
+<ul>
+    {% for record in records %}
+
+    <li><a href="{% url 'record_details' pk=record.id %}">
+        {% if mailing.status == 'Создана' %}
+        <h5 style="color: blue">Рассылка {{ mailing.id }}</h5>
+        {% elif mailing.status == 'Запущена' %}
+        <h5 style="color: green">Рассылка {{ mailing.id }}</h5>
+        {% else %}
+        <h5 style="color: grey">Рассылка {{ mailing.id }}</h5>
+        {% endif %}
+    </a>
+    </li>
+
+    {% endfor %}
+</ul>
+</p>
+{% else %}
+<h5>Пока записей нет...</h5>
+{% endif %}
+<button type="button" class="btn btn-lg btn-outline-primary mx-2 px-5 m-3 float-bottom"
+        onClick="javascript:history.go(-1);">Назад
+</button>
+
+
+{% endblock %}
+
+{% block navigation %}
+{% if mailings %}
+<nav class="list-pages">
+    <ul>
+        {% for p in paginator.page_range %}
+        {% if page_obj.number == p %}
+        <li class="page-num page-num-selected">Стр. {{ p }}</li>
+        {% else %}
+        <li class="page-num">
+            <a href="?page={{ p }}">Стр. {{ p }}</a>
+        </li>
+        {% endif %}
+        {% endfor %}
+    </ul>
+</nav>
+{% endif %}
+{% endblock %}

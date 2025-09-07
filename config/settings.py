@@ -79,6 +79,7 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "django.contrib.staticfiles",
     "groupadmin_users",
+    "bootstrap_datepicker_plus",
     'users',
     'notebook',
 ]
@@ -97,7 +98,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "config.urls"
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 

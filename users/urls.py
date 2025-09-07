@@ -5,10 +5,9 @@ from .views import (RegisterView, UserProfileView, UserDeleteView,
                     UserUpdateView, UserLoginView, UserConfirmEmailView,
                     EmailConfirmationSentView, EmailConfirmedView,
                     EmailConfirmationFailedView, UsersControlView, UserForgotPasswordView,
-                    UserPasswordResetConfirmView, InitUsersControlView, HomeView)
+                    UserPasswordResetConfirmView, InitUsersControlView)
 
 urlpatterns = [
-    path('', HomeView.as_view(), name='home'),
     path('login/', UserLoginView.as_view(), name='login'),
     path('logout/', LogoutView.as_view(next_page='home'), name='logout'),
     path('register/', RegisterView.as_view(), name='register'),
