@@ -2,7 +2,7 @@ import datetime
 
 from django import forms
 
-from .models import Notebook, NotebookRecord
+from .models import Notebook, Record
 from .mixins import FormControlMixin
 from bootstrap_datepicker_plus.widgets import DateTimePickerInput
 from django.shortcuts import redirect, get_object_or_404, render
@@ -16,7 +16,7 @@ class NotebookCreateForm(FormControlMixin, forms.ModelForm):
         fields = ['title',]
 
 
-class NotebookRecordCreateForm(FormControlMixin, forms.ModelForm):
+class RecordCreateForm(FormControlMixin, forms.ModelForm):
     """
     Форма создания записи в блокноте
 
@@ -27,7 +27,7 @@ class NotebookRecordCreateForm(FormControlMixin, forms.ModelForm):
 
 
     class Meta:
-        model = NotebookRecord
+        model = Record
         fields = '__all__'
         widgets = {
             'created_at': DateTimePickerInput(),
@@ -45,7 +45,7 @@ class NotebookRecordCreateForm(FormControlMixin, forms.ModelForm):
         page_number = kwargs.pop('number', None)
         print(f"notepad_id: {notebook_id}")
         notebook = get_object_or_404(Notebook, pk=notebook_id)
-        super(NotebookRecordCreateForm, self).__init__(*args, **kwargs)
+        super(RecordCreateForm, self).__init__(*args, **kwargs)
 
         # print(f"kwargs: {kwargs}")
         self.fields["notebook"].queryset = Notebook.objects.filter(owner=notebook.owner)

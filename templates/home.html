@@ -1,15 +1,34 @@
 {% extends "base.html" %}
 {% block title %}
-{% if title %}
-{{ title }}
-{% else %}DaysFlow
-{% endif %}
+    {% if title %}
+        {{ title }}
+    {% else %}DaysFlow
+    {% endif %}
 {% endblock %}
 {% block content %}
+<!--как установить нужный отступ?    -->
+{% if user.is_authenticated %}
+<div class="container-fluid pb-2 main_content_container" style="height: 90%">
+    <a href="{% url 'new_notebook' %}" type="button"
+      class="btn btn-lg btn-outline-primary "
+      style="width: 60%">Новый блокнот
+   </a>
 
-<a href="{% url 'new_record' pk=last_notebook_id %}" id="new_record_link">
-    Новый текст
-</a>
+    {% if notebooks %}
+        <h4 class="d-flex justify-content-center">Блокноты:</h4>
 
-
+        {% for notebook in notebooks %}
+           <div class="d-flex justify-content-center">
+            <a href="{% url 'notebook_records' pk=notebook.id %}" type="button"
+              class="btn btn-lg btn-outline-primary "
+              style="width: 60%">{{ notebook.title }}
+           </a>
+           </div>
+        {% endfor %}
+    {% endif %}
+    {% if last_notebook_id %}
+        last_notebook_id:{{ last_notebook_id }}
+    {% endif %}
+    </div>
+{% endif %}
 {% endblock %}
