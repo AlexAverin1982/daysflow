@@ -9,11 +9,12 @@
 <!--как установить нужный отступ?    -->
 {% if user.is_authenticated %}
 <div class="container-fluid pb-2 main_content_container" style="height: 90%">
+    <div class="d-flex justify-content-center">
     <a href="{% url 'new_notebook' %}" type="button"
       class="btn btn-lg btn-outline-primary "
       style="width: 60%">Новый блокнот
    </a>
-
+    </div>
     {% if notebooks %}
         <h4 class="d-flex justify-content-center">Блокноты:</h4>
 

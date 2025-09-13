@@ -65,35 +65,51 @@ class NotebookCreateView(generic.CreateView):
     }
     success_url = reverse_lazy('home')
 
+    def get_form_kwargs(self, *args, **kwargs):
+        form_kwargs = super().get_form_kwargs()
+        form_kwargs.update({'request': self.request})
+        # print(f"get_form_kwargs kwargs['user']: {self.request.user}")
+        return form_kwargs
+
+    # def form_valid(self, form):
+    #     self.object = form.save(commit=False)
+    #     self.model.owner = self.request.user
+    #     self.object.owner = self.request.user
+    #     self.object.save()
+    #     return HttpResponseRedirect(self.get_success_url())
+
     def form_valid(self, form):
-        self.object = form.save(commit=False)
+        form.instance.user = self.request.user
         self.model.owner = self.request.user
-        self.object.owner = self.request.user
-        self.object.save()
-        return HttpResponseRedirect(self.get_success_url())
+        return super().form_valid(form)
 
     def post(self, request, *args, **kwargs) -> Any:
         request.POST = request.POST.copy()
         request.POST['owner'] = request.user
-        data = NotebookCreateForm(request.POST)  # ФОРМА А НЕ ВИД!!!
+        form_data = NotebookCreateForm(request.POST)  # ФОРМА А НЕ ВИД!!!
 
-        print(f"request.POST: {request.POST}")
-        # print(f"request.user: {request.user}")
-        # эта песня посвещена борьбе за мир!
-        print(f"data: {data}")
-        if data.is_valid():
-            data.instance.owner = request.user
-            update = data.save(commit=False)
+        if form_data.is_valid():
+            form_data.instance.owner = request.user
+            form_data.instance.created_at = datetime.datetime.now()
+            update = form_data.save(commit=False)
             update.owner = request.user
             update.save()
             return HttpResponseRedirect(reverse_lazy('home'))
+        #     return redirect(reverse_lazy('mailing_details', kwargs={'pk': mailing.id}))
         else:
-            # print(f"request.POST: {request.POST}")
-            # print(f"data: {data}")
+            print(f"request.POST: {request.POST}")
+            print(f"form_data: {form_data}")
             # errors = self.get_form().errors
             # print(f"errors: {errors}")
             # kwargs['errors_data'] = self.get_form().errors
-            return HttpResponseRedirect(reverse('errors'))
+            return redirect(reverse_lazy('error', kwargs={'error_message': "Не удалось создать блокнот"}))
+
+
+
+        #     # return reverse_lazy('errors', kwargs={'errors': errors})
+        #     result = HttpResponseRedirect(reverse_lazy('errors', kwargs={'errors': errors}))
+        #     # print(f"-----------result: {result}")
+        #     return result
 
 
 class RecordCreateView(generic.CreateView):
@@ -169,8 +185,38 @@ class RecordsListView(generic.ListView):
     context_object_name = 'records'
     paginate_by = 50
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if not isinstance(self.request.user, AnonymousUser):
+            notebook_id = self.kwargs.get('pk')
+            # print('/' * 100)
+            # print(f"notebook_id: {notebook_id}")
+            context.update({'notebook_id': notebook_id})
+            # mailings_list = []
+            # mailings = Mailing.objects.filter(owner=self.request.user)
+            # for m in mailings:
+            #     m_dict = {'id': m.id, 'topic': m.message.topic, 'message_id': m.message.id,
+            #               'total_attempts': Attempt.objects.filter(mailing=m.id).count(),
+            #               'successful_attempts': Attempt.objects.filter(mailing=m.id).filter(
+            #                   is_successful=True).count(), }
+            #     if m_dict.get('total_attempts'):
+            #         mailings_list.append(m_dict)
+            #
+            # context.update({
+            #     'total_attempts_count':
+            #         Attempt.objects.all().filter(owner=self.request.user).count(),
+            #     'successful_attempts_count':
+            #         Attempt.objects.all().filter(owner=self.request.user).filter(is_successful=True).count(),
+            #     'mailings_list': mailings_list,
+            #     # 'clients_count':
+            #     #     Client.objects.all().filter(owner=self.request.user).count()
+            # })
+        return context
+
     def get_queryset(self):
         notebook_id = self.kwargs.get('pk')
+        # print('/' * 100)
+        # print(f"notebook_id: {notebook_id}")
         if notebook_id:
             queryset = Record.objects.filter(notebook=notebook_id).order_by('created_at')
             # if self.kwargs.get('show_all', False):
@@ -186,3 +232,16 @@ class RecordsListView(generic.ListView):
             return queryset
         else:
             return None
+
+    # def get(self, request, *args, **kwargs) -> Any:
+    #     print('/' * 100)
+    #     print(f"kwargs: {kwargs}")
+    #     notebook_id =
+
+
+class ErrorsView(generic.TemplateView):
+    """
+    сообщение об ошибках при редактировании или создании объектов
+    """
+    template_name = 'error_message.html'
+

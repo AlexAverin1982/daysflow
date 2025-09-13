@@ -1,7 +1,12 @@
 {% extends "base.html" %}
-{% block title %}{{ title }}{% endblock %}
+{% block title %}
+    {% if title %}
+        {{ title }}
+    {% else %}DaysFlow
+    {% endif %}
+{% endblock %}
 {% block content %}
-{% for kw in kwargs.keys%}{{kw}}{%endfor%}
+<!--{% for kw in kwargs.keys%}{{kw}}{%endfor%}-->
 {% if error_message %}
 <h3>{{error_message}}</h3>
 {% else %}

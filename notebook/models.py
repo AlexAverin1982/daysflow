@@ -30,7 +30,7 @@ class Notebook(models.Model):
     owner = models.ForeignKey(CustomUser, editable=False, on_delete=models.SET_NULL, related_name='notebooks',
                               verbose_name='Владелец', blank=True, null=True)
 
-    created_at = models.DateTimeField(verbose_name="Дата создания", auto_created=True, null=True)
+    # created_at = models.DateTimeField(verbose_name="Дата создания", auto_created=True, null=True)
 
     class Meta:
         verbose_name = "Блокнот"
@@ -45,9 +45,14 @@ class Record(models.Model):
     number = models.IntegerField(verbose_name='Номер страницы в блокноте')
     notebook = models.ForeignKey(Notebook, editable=False, on_delete=models.CASCADE, related_name='records',
                                  verbose_name='Блокнот', blank=True, null=True)
-    template = models.ForeignKey(Notebook, editable=False, on_delete=models.CASCADE, related_name='this_template_Records',
+    template = models.ForeignKey(Notebook, editable=False, on_delete=models.CASCADE,
+                                 related_name='this_template_Records',
                                  verbose_name='Блокнот', blank=True, null=True)
     title = models.CharField(max_length=200, verbose_name="Заголовок записи", blank=True, default='')
     created_at = models.DateTimeField(verbose_name="Дата создания", null=True)
 
     text = models.TextField(blank=True)
+
+
+class ErrorMessage(models.Model):
+    name = models.CharField(max_length=200, verbose_name="Название ошибки")
