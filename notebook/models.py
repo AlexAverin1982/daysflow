@@ -55,4 +55,4 @@ class Record(models.Model):
 
 
 class ErrorMessage(models.Model):
-    name = models.CharField(max_length=200, verbose_name="Название ошибки")
+    name = models.CharField(max_length=200, verbose_name="Название ошибки", unique=True)

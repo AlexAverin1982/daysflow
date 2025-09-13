@@ -2,7 +2,7 @@ import datetime
 
 from django import forms
 
-from .models import Notebook, Record
+from .models import Notebook, Record, ErrorMessage
 from .mixins import FormControlMixin
 from bootstrap_datepicker_plus.widgets import DateTimePickerInput
 from django.shortcuts import redirect, get_object_or_404, render
@@ -59,8 +59,8 @@ class NotebookCreateForm(FormControlMixin, forms.ModelForm):
             titles = Notebook.objects.filter(owner=self.user).values_list('title', flat=True)
             # print(f"titles: {titles}")
             if new_title in titles:
-                self._errors["send_stop"] = self.error_class(['Блокнот с таким названием уже есть'])
-                raise forms.ValidationError('Блокнот с таким названием уже есть')
+                self._errors["send_stop"] = ErrorMessage.objects.get(id=101)
+                raise forms.ValidationError(self._errors["send_stop"])
                 # self.add_error('send_stop', 'Время завершения рассылки не указано')
 
         else:

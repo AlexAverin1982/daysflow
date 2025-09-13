@@ -11,7 +11,7 @@ from django.core.cache import cache
 from typing_extensions import Any
 
 from notebook.forms import NotebookCreateForm, RecordCreateForm
-from notebook.models import Notebook, Record
+from notebook.models import Notebook, Record, ErrorMessage
 
 
 class HomeView(generic.TemplateView):
@@ -102,7 +102,7 @@ class NotebookCreateView(generic.CreateView):
             # errors = self.get_form().errors
             # print(f"errors: {errors}")
             # kwargs['errors_data'] = self.get_form().errors
-            return redirect(reverse_lazy('error', kwargs={'error_message': "Не удалось создать блокнот"}))
+            return redirect(reverse_lazy('error', kwargs={'pk': 101}))
 
 
 
@@ -239,9 +239,33 @@ class RecordsListView(generic.ListView):
     #     notebook_id =
 
 
-class ErrorsView(generic.TemplateView):
+class ErrorView(generic.DetailView):
     """
     сообщение об ошибках при редактировании или создании объектов
     """
     template_name = 'error_message.html'
+
+    model = ErrorMessage
+    context_object_name = 'error_message'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context.update({
+            # 'owner': self.model.owner,
+            'user': self.request.user,
+        })
+
+        return context
+
+    # def get(self, request, **kwargs):
+    #     error_message = get_object_or_404(ErrorMessage, pk=kwargs.get('error_id', -1))
+    #     # if kwargs.get('disable'):
+    #     #     mailing = get_object_or_404(Mailing, pk=kwargs.get('pk', -1))
+    #     #     mailing.enabled = not mailing.enabled
+    #     #     mailing.save()
+    #     #     return redirect(request.META['HTTP_REFERER'])
+    #     return super().get(self, request, **kwargs)
+
+
 

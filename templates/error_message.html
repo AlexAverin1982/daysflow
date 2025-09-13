@@ -8,7 +8,7 @@
 {% block content %}
 <!--{% for kw in kwargs.keys%}{{kw}}{%endfor%}-->
 {% if error_message %}
-<h3>{{error_message}}</h3>
+<h3>{{error_message.name}}</h3>
 {% else %}
 <h3>Не получилось, ошибка в данных.</h3>
 {% endif %}
