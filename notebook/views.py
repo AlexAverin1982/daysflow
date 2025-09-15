@@ -128,6 +128,9 @@ class RecordCreateView(generic.CreateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
+        print('('*100)
+        print(f"self.request.POST: {self.request.POST}")
+        self.object.notebook_id = self.request.POST.get('notebook')
         # self.model.owner = self.request.user
         # self.object.owner = self.request.user
         self.object.save()
@@ -152,21 +155,21 @@ class RecordCreateView(generic.CreateView):
         return kwargs
 
     def post(self, request, *args, **kwargs) -> Any:
-        print('/' * 100)
-        print(f"request.POST: {request.POST}")
+        # print('/' * 100)
+        # print(f"request.POST: {request.POST}")
         request.POST = request.POST.copy()
         # request.POST['owner'] = request.user
         data = RecordCreateForm(request.POST)  # ФОРМА А НЕ ВИД!!!
-        print(f"data to save: {data}")
+        # print(f"data to save: {data}")
         # print(f"request.user: {request.user}")
         # эта песня посвещена борьбе за мир!
         if data.is_valid():
+            self.form_valid(data)
             # data.instance.owner = request.user
-
             update = data.save(commit=False)
-            # update.owner = request.user
             update.save()
-            return HttpResponseRedirect(reverse_lazy('home'))
+            print(f"request.POST: {request.POST}")
+            return redirect(reverse_lazy('notebook_records', kwargs={'pk': request.POST['notebook'][0]}))
         else:
             # print(f"request.POST: {request.POST}")
             # print(f"data: {data}")
@@ -215,10 +218,15 @@ class RecordsListView(generic.ListView):
 
     def get_queryset(self):
         notebook_id = self.kwargs.get('pk')
-        # print('/' * 100)
-        # print(f"notebook_id: {notebook_id}")
+        print('/' * 100)
+        print(f"notebook_id: {notebook_id}")
         if notebook_id:
-            queryset = Record.objects.filter(notebook=notebook_id).order_by('created_at')
+            owner_notebook = get_object_or_404(Notebook, id=notebook_id)
+            # queryset = Record.objects.all()
+
+            queryset = Record.objects.filter(notebook__id=1).order_by('created_at')
+            print(queryset[0].notebook)
+            print(f'records count: {queryset.count()}')
             # if self.kwargs.get('show_all', False):
             #     queryset = cache.get('all_mailing_list_queryset')
             #     if not queryset:
@@ -237,6 +245,53 @@ class RecordsListView(generic.ListView):
     #     print('/' * 100)
     #     print(f"kwargs: {kwargs}")
     #     notebook_id =
+
+class NotebookDetailsView(generic.DetailView):
+    """
+    Свойства и сводная информация о блокноте
+    """
+    template_name = 'notebook_details.html'
+
+    model = Notebook
+    context_object_name = 'notebook'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context.update({
+            # 'owner': self.model.owner,
+            'user': self.request.user,
+        })
+
+        return context
+
+class RecordDetailsView(generic.DetailView):
+    """
+    Запись в блокноте
+    """
+    template_name = 'record.html'
+
+    model = Record
+    context_object_name = 'record'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context.update({
+            # 'owner': self.model.owner,
+            'user': self.request.user,
+        })
+
+        return context
+
+    # def get(self, request, **kwargs):
+    #     error_message = get_object_or_404(ErrorMessage, pk=kwargs.get('error_id', -1))
+    #     # if kwargs.get('disable'):
+    #     #     mailing = get_object_or_404(Mailing, pk=kwargs.get('pk', -1))
+    #     #     mailing.enabled = not mailing.enabled
+    #     #     mailing.save()
+    #     #     return redirect(request.META['HTTP_REFERER'])
+    #     return super().get(self, request, **kwargs)
 
 
 class ErrorView(generic.DetailView):

@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}
+{% if title %}
+{{ title }}
+{% else %}DaysFlow
+{% endif %}
+{% endblock %}
+{% block content %}
+<a href="https://www.example.com" id="page_properties_link"><div id="time"></div></a>
+<form method="post" class="form-floating" enctype="multipart/form-data">
+    {% csrf_token %}
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    {{ form.media }}
+    <textarea id="record_text_widget" rows="11"></textarea>
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+{% endblock %}
