@@ -6,13 +6,50 @@
 {% endif %}
 {% endblock %}
 {% block content %}
-<a href="https://www.example.com" id="page_properties_link"><div id="time"></div></a>
-<form method="post" class="form-floating" enctype="multipart/form-data">
-    {% csrf_token %}
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    {{ form.media }}
-    <textarea id="record_text_widget" rows="11"></textarea>
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+<div class="container-fluid pb-2 main_content_container" style="height: 90%">
+    <div class="d-flex justify-content-center">
+        <h3>Свойства блокнота</h3>
+    </div>
+    <div class="row"></div> <!-- нужны отступы сверху-->
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-3">
+            <div class="d-flex justify-content-start">
+                Наименование:
+            </div>
+        </div>
+        <div class="col-md-2">
+            <a href="{% url 'edit_notebook_title' pk=notebook.id %}">{{ notebook.title }}</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-3">
+            <div class="d-flex justify-content-start">
+                Дата создания дневника:
+            </div>
+        </div>
+        <div class="col-md-2">
+            <a href="#">{{ notebook.created_at }}</a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3"></div>
+        <div class="col-md-3">
+            <div class="d-flex justify-content-start">
+                Количество записей:
+            </div>
+        </div>
+        <div class="col-md-2">
+            1
+        </div>
+    </div>
+    <p>
+    <div class="d-flex justify-content-center">
+        <a href="{% url 'notebook_records' pk=notebook.id %}" type="button"
+           class="btn btn-lg btn-outline-primary ">Назад
+        </a>
+    </div>
+    </p>
+</div>
 {% endblock %}

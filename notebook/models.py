@@ -30,7 +30,7 @@ class Notebook(models.Model):
     owner = models.ForeignKey(CustomUser, editable=False, on_delete=models.SET_NULL, related_name='notebooks',
                               verbose_name='Владелец', blank=True, null=True)
 
-    # created_at = models.DateTimeField(verbose_name="Дата создания", auto_created=True, null=True)
+    created_at = models.DateTimeField(verbose_name="Дата создания", auto_created=True, null=True)
 
     class Meta:
         verbose_name = "Блокнот"

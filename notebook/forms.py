@@ -31,10 +31,10 @@ class NotebookCreateForm(FormControlMixin, forms.ModelForm):
         # self.request = kwargs.pop("request")
 
         self.request = kwargs.pop("request", None) # store value of request
-        print(f"self.request in __init__(): {self.request}")
+        # print(f"self.request in __init__(): {self.request}")
         # print(f"self.request.user in __init__(): {self.request.user}")
-        print(f" __init__() args: {args}")
-        print(f" __init__() kwargs: {kwargs}")
+        # print(f" __init__() args: {args}")
+        # print(f" __init__() kwargs: {kwargs}")
         super().__init__(*args, **kwargs)
         self.user = None
 
@@ -65,6 +65,41 @@ class NotebookCreateForm(FormControlMixin, forms.ModelForm):
 
         else:
             count = Notebook.objects.filter(owner=self.request.user).count()
+            cleaned_data['title'] = f'Блокнот {count + 1}'
+        return cleaned_data
+
+class NotebookTitleForm(FormControlMixin, forms.ModelForm):
+    """
+    Форма редактирования названия блокнота
+    """
+
+    class Meta:
+        model = Notebook
+        fields = ['title',]
+
+    def clean(self):
+        """
+        проверка данных в форме на корректность
+        """
+        cleaned_data = super().clean()
+        # print('0' * 100)
+        # print(f"self.instance in clean(): {self.instance}")
+        user = self.instance.owner
+        # print(f"self.instance.owner: {self.instance.owner}")
+        """
+        проверяем существование блокнота с таким же заголовком
+        """
+        # print(f"cleaned_data: {cleaned_data}")
+        new_title = cleaned_data.get('title')
+        if new_title:
+            titles = Notebook.objects.filter(owner=user).values_list('title', flat=True)
+            # print(f"titles: {titles}")
+            if new_title in titles:
+                self._errors["send_stop"] = ErrorMessage.objects.get(id=101)
+                raise forms.ValidationError(self._errors["send_stop"])
+
+        else:
+            count = Notebook.objects.filter(owner=user).count()
             cleaned_data['title'] = f'Блокнот {count + 1}'
         return cleaned_data
 

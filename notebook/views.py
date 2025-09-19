@@ -10,7 +10,7 @@ from django.utils.decorators import method_decorator
 from django.core.cache import cache
 from typing_extensions import Any
 
-from notebook.forms import NotebookCreateForm, RecordCreateForm
+from notebook.forms import NotebookCreateForm, RecordCreateForm, NotebookTitleForm
 from notebook.models import Notebook, Record, ErrorMessage
 
 
@@ -104,8 +104,6 @@ class NotebookCreateView(generic.CreateView):
             # kwargs['errors_data'] = self.get_form().errors
             return redirect(reverse_lazy('error', kwargs={'pk': 101}))
 
-
-
         #     # return reverse_lazy('errors', kwargs={'errors': errors})
         #     result = HttpResponseRedirect(reverse_lazy('errors', kwargs={'errors': errors}))
         #     # print(f"-----------result: {result}")
@@ -128,7 +126,7 @@ class RecordCreateView(generic.CreateView):
 
     def form_valid(self, form):
         self.object = form.save(commit=False)
-        print('('*100)
+        print('(' * 100)
         print(f"self.request.POST: {self.request.POST}")
         self.object.notebook_id = self.request.POST.get('notebook')
         # self.model.owner = self.request.user
@@ -224,9 +222,10 @@ class RecordsListView(generic.ListView):
             owner_notebook = get_object_or_404(Notebook, id=notebook_id)
             # queryset = Record.objects.all()
 
-            queryset = Record.objects.filter(notebook__id=1).order_by('created_at')
-            print(queryset[0].notebook)
-            print(f'records count: {queryset.count()}')
+            queryset = Record.objects.filter(notebook__id=notebook_id).order_by('created_at')
+            if queryset.count():
+                print(queryset[0].notebook)
+                print(f'records count: {queryset.count()}')
             # if self.kwargs.get('show_all', False):
             #     queryset = cache.get('all_mailing_list_queryset')
             #     if not queryset:
@@ -246,6 +245,7 @@ class RecordsListView(generic.ListView):
     #     print(f"kwargs: {kwargs}")
     #     notebook_id =
 
+
 class NotebookDetailsView(generic.DetailView):
     """
     Свойства и сводная информация о блокноте
@@ -264,6 +264,38 @@ class NotebookDetailsView(generic.DetailView):
         })
 
         return context
+
+
+class NotebookTitleView(generic.UpdateView):
+    """
+    Диалог редактирования названия блокнота
+    """
+    template_name = 'notebook_title.html'
+    model = Notebook
+    form_class = NotebookTitleForm
+    context_object_name = 'notebook'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context.update({
+            'user': self.request.user,
+            'editing_mode': True,
+        })
+        return context
+
+
+    def form_valid(self, form):
+        print(f"self.request.user: {self.request.user}")
+        form.instance.user = self.request.user
+        self.model.owner = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        print(f'self.request.GET: {self.request.GET}')
+        return reverse("notebook_details", kwargs=self.kwargs)
+
+
 
 class RecordDetailsView(generic.DetailView):
     """
@@ -321,6 +353,3 @@ class ErrorView(generic.DetailView):
     #     #     mailing.save()
     #     #     return redirect(request.META['HTTP_REFERER'])
     #     return super().get(self, request, **kwargs)
-
-
-
