@@ -31,11 +31,19 @@
                     <a class="nav-link ms-2" href="{% url 'login' %}">Шаблоны</a>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link ms-2" href="{% url 'login' %}">Настройки</a>
+                    <a class="nav-link dropdown-toggle ms-2" href="#" role="button"
+                    data-bs-toggle="dropdown" aria-expanded="false">Настройки</a>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                        {% if records %}
+                        <li><a class="dropdown-item" href="{% url 'record_display_settings' pk=notebook_id %}">
+                            Формат заголовка записи
+                        </a></li>
+                        {% endif %}
+                    </ul>
                 </li>
 
                 <li class="nav-item dropdown">
-                    <a class="nav-link ms-2" href="{% url 'login' %}">Статистика</a>
+                    <a class="nav-link ms-2" href="{% url 'login' %}">{{notebook_id}}</a>
                 </li>
                 {% endif %}
             </ul>

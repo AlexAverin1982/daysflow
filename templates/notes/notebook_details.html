@@ -41,15 +41,21 @@
             </div>
         </div>
         <div class="col-md-2">
-            1
+            {{ notebook.records_count }}
         </div>
     </div>
-    <p>
+    <br>
     <div class="d-flex justify-content-center">
-        <a href="{% url 'notebook_records' pk=notebook.id %}" type="button"
-           class="btn btn-lg btn-outline-primary ">Назад
+        <a href="{% url 'delete_notebook' pk=notebook.id %}" type="button"
+           style="width: 50%;" class="btn btn-lg btn-danger ">Удалить блокнот
         </a>
     </div>
-    </p>
+    <br>
+    <div class="d-flex justify-content-center">
+        <a href="{% url 'notebook_records' pk=notebook.id %}" type="button"
+           style="width: 50%;" class="btn btn-lg btn-outline-primary ">Назад
+        </a>
+    </div>
+
 </div>
 {% endblock %}

@@ -6,13 +6,102 @@
 {% endif %}
 {% endblock %}
 {% block content %}
-<a href="https://www.example.com" id="page_properties_link"><div id="time"></div></a>
-<form method="post" class="form-floating" enctype="multipart/form-data">
-    {% csrf_token %}
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    {{ form.media }}
-    <textarea id="record_text_widget" rows="11"></textarea>
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Submit</button>
-</form>
+
+<div class="d-flex container-fluid">
+    <form method="post" class="form-floating container-fluid" enctype="multipart/form-data">
+        {% csrf_token %}
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        {{ form.media }}
+        <div class="row">
+            <div class="col-1"></div>
+            <div class="col-md-11 justify-content-end">
+                <div class="row">
+
+                    <div class="col-md-3">
+                        <div class="fieldWrapper d-flex my-3 justify-content-end">
+                            {{ form.created_at.errors }}
+                            {{ form.created_at.label_tag }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="fieldWrapper d-flex my-3">
+                            {{ form.created_at }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-3">
+                        <div class="fieldWrapper d-flex my-3 justify-content-end">
+                            {{ form.number.errors }}
+                            {{ form.number.label_tag }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="fieldWrapper d-flex my-3">
+                            {{ form.number }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-3">
+                        <div class="fieldWrapper d-flex my-3 justify-content-end">
+                            {{ form.notebook.errors }}
+                            {{ form.notebook.label_tag }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="fieldWrapper d-flex my-3">
+                            {{ form.notebook }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+
+                    <div class="col-md-3">
+                        <div class="fieldWrapper d-flex mb-3 justify-content-end">
+                            {{ form.title.errors }}
+                            {{ form.title.label_tag }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="fieldWrapper d-flex mb-3">
+                            {{ form.title }}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="fieldWrapper d-flex mb-3 justify-content-end">
+                            {{ form.text.errors }}
+                            {{ form.text.label_tag }}
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="fieldWrapper d-flex mb-6">
+                            {{ form.text }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="col-md-2">
+            </div>
+            <div class="col-md-10">
+                <button type="submit" class="btn btn-primary">Сохранить</button>
+                <button type="button" class="btn btn-outline-secondary mx-2 px-5 m-3 float-bottom"
+                        onClick="javascript:history.go(-1);">Отмена
+                </button>
+
+            </div>
+        </div>
+
+    </form>
+</div>
 {% endblock %}

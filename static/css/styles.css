@@ -12,5 +12,24 @@ body {
   background-image: url('/static/images/background.jpg');
   background-repeat: no-repeat;
   background-size: 100vw 100vh;
+  background-color:transparent
 
+}
+
+.row {
+  display: flex;
+}
+
+.row > div {
+  flex: 1;
+  background: lightgrey;
+  border: 1px solid grey;
+}
+
+div.container {
+    background-color:transparent !important;
+}
+
+.form {
+    background-color:transparent !important;
 }

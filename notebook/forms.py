@@ -2,10 +2,11 @@ import datetime
 
 from django import forms
 
-from .models import Notebook, Record, ErrorMessage
+from .models import Notebook, Record, ErrorMessage, RecordDisplaySettings
 from .mixins import FormControlMixin
 from bootstrap_datepicker_plus.widgets import DateTimePickerInput
 from django.shortcuts import redirect, get_object_or_404, render
+
 
 class NotebookCreateForm(FormControlMixin, forms.ModelForm):
     """
@@ -14,7 +15,7 @@ class NotebookCreateForm(FormControlMixin, forms.ModelForm):
 
     class Meta:
         model = Notebook
-        fields = ['title',]
+        fields = ['title', ]
 
     def __init__(self, *args, **kwargs):
         """
@@ -30,7 +31,7 @@ class NotebookCreateForm(FormControlMixin, forms.ModelForm):
         #     print(f"self.user from kwargs: {self.user}")
         # self.request = kwargs.pop("request")
 
-        self.request = kwargs.pop("request", None) # store value of request
+        self.request = kwargs.pop("request", None)  # store value of request
         # print(f"self.request in __init__(): {self.request}")
         # print(f"self.request.user in __init__(): {self.request.user}")
         # print(f" __init__() args: {args}")
@@ -68,6 +69,7 @@ class NotebookCreateForm(FormControlMixin, forms.ModelForm):
             cleaned_data['title'] = f'Блокнот {count + 1}'
         return cleaned_data
 
+
 class NotebookTitleForm(FormControlMixin, forms.ModelForm):
     """
     Форма редактирования названия блокнота
@@ -75,15 +77,13 @@ class NotebookTitleForm(FormControlMixin, forms.ModelForm):
 
     class Meta:
         model = Notebook
-        fields = ['title',]
+        fields = ['title', ]
 
     def clean(self):
         """
         проверка данных в форме на корректность
         """
         cleaned_data = super().clean()
-        # print('0' * 100)
-        # print(f"self.instance in clean(): {self.instance}")
         user = self.instance.owner
         # print(f"self.instance.owner: {self.instance.owner}")
         """
@@ -103,21 +103,29 @@ class NotebookTitleForm(FormControlMixin, forms.ModelForm):
             cleaned_data['title'] = f'Блокнот {count + 1}'
         return cleaned_data
 
+    def __init__(self, *args, **kwargs):
+        """
+        конструктор формы, инициализация полей
+        """
+        self.request = kwargs.pop("request", None)  # store value of request
+        super().__init__(*args, **kwargs)
+        if args:
+            self.user = args[0].get('owner')
 
 
 class RecordCreateForm(FormControlMixin, forms.ModelForm):
     """
     Форма создания записи в блокноте
 
-    добавить поля ссылки на блокнот-владелец и шаблон страницы
+    добавить поля ссылки на шаблон страницы
     """
     notebook = forms.ModelChoiceField(queryset=Notebook.objects.all(), empty_label=None)
     title = forms.CharField(required=False)
 
-
     class Meta:
         model = Record
-        fields = '__all__'
+        # fields = '__all__'
+        fields = ['title', 'created_at', 'text',  ]
         widgets = {
             'created_at': DateTimePickerInput(),
         }
@@ -125,6 +133,7 @@ class RecordCreateForm(FormControlMixin, forms.ModelForm):
     """
     добавить конструктор для заполнения полей по умолчанию
     """
+
     def __init__(self, *args, **kwargs):
         print(f"args: {args}")
         notebook_id = kwargs.pop('pk', None)
@@ -138,6 +147,60 @@ class RecordCreateForm(FormControlMixin, forms.ModelForm):
 
         # print(f"kwargs: {kwargs}")
         self.fields["notebook"].queryset = Notebook.objects.filter(owner=notebook.owner)
-        self.fields['number'].initial = page_number
+        # self.fields['number'].initial = page_number
         self.fields['created_at'].initial = datetime.datetime.now()
         self.fields['notebook'].initial = notebook
+
+
+class RecordDetailsForm(FormControlMixin, forms.ModelForm):
+    number = forms.NumberInput()
+    created_at = forms.DateTimeInput()
+    title = forms.CharField()
+    notebook = forms.ModelMultipleChoiceField(queryset=Notebook.objects.all())
+    text = forms.Textarea()
+
+
+    class Meta:
+        model = Record
+        fields = ['created_at', 'number', 'title', 'text', ]
+
+        widgets = {
+            'created_at': DateTimePickerInput(),
+            'number': forms.NumberInput(),
+            'text': forms.Textarea(),
+        }
+
+
+
+        # widgets = {
+        #     'send_start': DateTimePickerInput(),
+        #     'send_stop': DateTimePickerInput(),
+        #     'scheduler_enabled': forms.CheckboxInput(attrs={'class': 'custom-checkbox-class'}),
+        #     'scheduler_days_interval': forms.NumberInput(),
+        #     'scheduler_hours_interval': forms.NumberInput(),
+        #     'scheduler_minutes_interval': forms.NumberInput(),
+        #     'scheduler_seconds_interval': forms.NumberInput(),
+        # }
+
+    def __init__(self, *args, **kwargs):
+        super(RecordDetailsForm, self).__init__(*args, **kwargs)
+        # instance = getattr(self, 'instance', None)
+        instance = kwargs.get('instance')
+        # if instance and instance.pk:
+        print(f"instance: {instance}")
+        # if instance:
+        #     print(f"instance.send_start: {instance.send_start}")
+        #     self.fields['send_start'].initial = instance.send_start
+        # self.fields['send_start'].widget.attrs['readonly'] = True
+        # self.fields['send_stop'].widget.attrs['readonly'] = True
+
+class RecordDisplaySettingsForm(FormControlMixin, forms.ModelForm):
+
+    class Meta:
+        model = RecordDisplaySettings
+        fields = '__all__'  # no use, form is customized, but without it server won't start
+        # exclude = ['status']
+        STATUS_CHOICES = (('Создана', 'Создана'), ('Запущена', 'Запущена'), ('Завершена', 'Завершена'),)
+        widgets = {
+            'field0': forms.Select(attrs={'id': 'status_select'}, choices=STATUS_CHOICES),
+        }

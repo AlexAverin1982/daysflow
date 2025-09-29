@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %} Удаление блокнота '{{ notebook.title|truncatechars:100 }}' {% endblock %}
+{% block content %}
+<div class="d-flex container-fluid justify-content-center">
+    <form method="post" class="form-floating" enctype="multipart/form-data">
+        {% csrf_token %}
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        {{ form.media }}
+        <p>Вы уверены, что хотите удалить блокнот "{{ notebook.title }}"?</p>
+        <div class="d-flex container-fluid justify-content-center">
+            <button type="submit" class="btn btn-danger mx-2 px-5 m-3" style="width: 100%">
+                Да, удалить
+            </button>
+            <button type="button" class="btn btn-lg btn-outline-primary mx-2 px-5 m-3 float-bottom"
+                    onClick="javascript:history.go(-1);">Назад
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

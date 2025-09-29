@@ -14,14 +14,14 @@
         {% for record in records %}
 
         <div class="d-flex justify-content-center">
-            <a href="{% url 'new_record' pk=notebook_id %}"
+            <a href="{% url 'record_details' pk=record.id %}"
                class="btn btn-lg btn-outline-success mx-2 px-5 m-3 float-bottom">
-                {{ record.created_at }}
+                {{ record }}
             </a>
         </div>
 
         {% endfor %}
-    </p>
+    <p>
     {% else %}
     <div class="d-flex justify-content-center">
         <h5>Пока записей нет...</h5>

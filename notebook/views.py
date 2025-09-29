@@ -10,8 +10,9 @@ from django.utils.decorators import method_decorator
 from django.core.cache import cache
 from typing_extensions import Any
 
-from notebook.forms import NotebookCreateForm, RecordCreateForm, NotebookTitleForm
-from notebook.models import Notebook, Record, ErrorMessage
+from notebook.forms import NotebookCreateForm, RecordCreateForm, NotebookTitleForm, RecordDetailsForm, \
+    RecordDisplaySettingsForm
+from notebook.models import Notebook, Record, ErrorMessage, RecordDisplaySettings
 
 
 class HomeView(generic.TemplateView):
@@ -56,8 +57,10 @@ class NotebookCreateView(generic.CreateView):
     переход к форме нового сообщения
     """
     model = Notebook
-    form_class = NotebookCreateForm
-    template_name = 'new_notebook.html'
+    # form_class = NotebookCreateForm
+    form_class = NotebookTitleForm
+    # template_name = 'new_notebook.html'
+    template_name = 'notebook_title.html'
     context_object_name = 'notebook'
 
     extra_context = {
@@ -86,6 +89,7 @@ class NotebookCreateView(generic.CreateView):
     def post(self, request, *args, **kwargs) -> Any:
         request.POST = request.POST.copy()
         request.POST['owner'] = request.user
+        print(f"request.user: {request.user}")
         form_data = NotebookCreateForm(request.POST)  # ФОРМА А НЕ ВИД!!!
 
         if form_data.is_valid():
@@ -110,6 +114,70 @@ class NotebookCreateView(generic.CreateView):
         #     return result
 
 
+class NotebookDetailsView(generic.DetailView):
+    """
+    Свойства и сводная информация о блокноте
+    """
+    template_name = 'notebook_details.html'
+
+    model = Notebook
+    context_object_name = 'notebook'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context.update({
+            # 'owner': self.model.owner,
+            'user': self.request.user,
+        })
+
+        return context
+
+
+class NotebookTitleView(generic.UpdateView):
+    """
+    Диалог редактирования названия блокнота
+    """
+    template_name = 'notebook_title.html'
+    model = Notebook
+    form_class = NotebookTitleForm
+    context_object_name = 'notebook'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        context.update({
+            'user': self.request.user,
+            'editing_mode': True,
+        })
+        return context
+
+    def form_valid(self, form):
+        # print(f"self.request.user: {self.request.user}")
+        form.instance.user = self.request.user
+        self.model.owner = self.request.user
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        # print(f'self.request.GET: {self.request.GET}')
+        return reverse("notebook_details", kwargs=self.kwargs)
+
+
+class NotebookDeleteView(generic.DeleteView):
+    """
+    переход к удалению блокнота
+    """
+    model = Notebook
+    success_url = reverse_lazy("home")
+    context_object_name = 'notebook'
+    template_name = 'delete_notebook.html'
+
+    def post(self, request, *args, **kwargs) -> Any:
+        Notebook.objects.get(id=kwargs['pk'])
+        super(NotebookDeleteView, self).post(request, *args, **kwargs)
+        return redirect('home')
+
+
 class RecordCreateView(generic.CreateView):
     """
     переход к форме новой записи
@@ -131,6 +199,7 @@ class RecordCreateView(generic.CreateView):
         self.object.notebook_id = self.request.POST.get('notebook')
         # self.model.owner = self.request.user
         # self.object.owner = self.request.user
+        self.object.number = self.object.notebook.records_count() + 1;
         self.object.save()
         return HttpResponseRedirect(self.get_success_url())
 
@@ -190,8 +259,8 @@ class RecordsListView(generic.ListView):
         context = super().get_context_data(**kwargs)
         if not isinstance(self.request.user, AnonymousUser):
             notebook_id = self.kwargs.get('pk')
-            # print('/' * 100)
-            # print(f"notebook_id: {notebook_id}")
+            print('/' * 100)
+            print(f"notebook_id: {notebook_id}")
             context.update({'notebook_id': notebook_id})
             # mailings_list = []
             # mailings = Mailing.objects.filter(owner=self.request.user)
@@ -246,65 +315,17 @@ class RecordsListView(generic.ListView):
     #     notebook_id =
 
 
-class NotebookDetailsView(generic.DetailView):
-    """
-    Свойства и сводная информация о блокноте
-    """
-    template_name = 'notebook_details.html'
-
-    model = Notebook
-    context_object_name = 'notebook'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context.update({
-            # 'owner': self.model.owner,
-            'user': self.request.user,
-        })
-
-        return context
-
-
-class NotebookTitleView(generic.UpdateView):
-    """
-    Диалог редактирования названия блокнота
-    """
-    template_name = 'notebook_title.html'
-    model = Notebook
-    form_class = NotebookTitleForm
-    context_object_name = 'notebook'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        context.update({
-            'user': self.request.user,
-            'editing_mode': True,
-        })
-        return context
-
-
-    def form_valid(self, form):
-        print(f"self.request.user: {self.request.user}")
-        form.instance.user = self.request.user
-        self.model.owner = self.request.user
-        return super().form_valid(form)
-
-    def get_success_url(self):
-        print(f'self.request.GET: {self.request.GET}')
-        return reverse("notebook_details", kwargs=self.kwargs)
-
-
-
-class RecordDetailsView(generic.DetailView):
+class RecordDetailsView(generic.UpdateView):
     """
     Запись в блокноте
     """
     template_name = 'record.html'
+    # form_class = RecordCreateForm
 
     model = Record
     context_object_name = 'record'
+    form_class = RecordDetailsForm
+
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -315,15 +336,6 @@ class RecordDetailsView(generic.DetailView):
         })
 
         return context
-
-    # def get(self, request, **kwargs):
-    #     error_message = get_object_or_404(ErrorMessage, pk=kwargs.get('error_id', -1))
-    #     # if kwargs.get('disable'):
-    #     #     mailing = get_object_or_404(Mailing, pk=kwargs.get('pk', -1))
-    #     #     mailing.enabled = not mailing.enabled
-    #     #     mailing.save()
-    #     #     return redirect(request.META['HTTP_REFERER'])
-    #     return super().get(self, request, **kwargs)
 
 
 class ErrorView(generic.DetailView):
@@ -353,3 +365,9 @@ class ErrorView(generic.DetailView):
     #     #     mailing.save()
     #     #     return redirect(request.META['HTTP_REFERER'])
     #     return super().get(self, request, **kwargs)
+
+class RecordDisplaySettingsView(generic.UpdateView):
+    model = RecordDisplaySettings
+    context_object_name = 'settings'
+    form_class = RecordDisplaySettingsForm
+    template_name = 'record_display_settings.html'
